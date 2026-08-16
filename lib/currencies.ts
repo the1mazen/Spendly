@@ -96,20 +96,18 @@ export function formatCurrency(
 }
 
 /**
- * Calculate Egypt InstaPay transfer fee
- * Standard tariff: 0.1% of transaction value (min 1.50 EGP, max 10.00 EGP) or 0 on promotions
+ * Calculate Egypt InstaPay transfer fee:
+ * Formula: 0.1% of transaction amount.
+ * Minimum fee: 0.5 EGP.
+ * Maximum fee: 20.0 EGP.
+ * Formula logic: Math.min(Math.max(amount * 0.001, 0.5), 20)
  */
 export function calculateInstaPayFee(amount: number, currency: CurrencyCode = "EGP"): number {
   if (amount <= 0) return 0
-  // If currency is foreign, convert to EGP to calculate fee
   const egpAmount = currency === "EGP" ? amount : convertCurrency(amount, currency, "EGP")
   
-  // 0.1% with min 1.50 EGP, capped at 10.00 EGP
-  let feeInEgp = egpAmount * 0.001
-  if (feeInEgp < 1.50) feeInEgp = 1.50
-  if (feeInEgp > 10.00) feeInEgp = 10.00
+  const feeInEgp = Math.min(Math.max(egpAmount * 0.001, 0.5), 20)
 
-  // Convert back if account is in another currency
   if (currency === "EGP") {
     return Number(feeInEgp.toFixed(2))
   }

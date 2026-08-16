@@ -1,5 +1,5 @@
-import LedgerMain from "@/components/ledger-os/ledger-main"
+import Dashboard from "@/components/kokonutui/dashboard"
 
 export default function Home() {
-  return <LedgerMain />
+  return <Dashboard />
 }

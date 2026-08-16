@@ -1,179 +1,212 @@
 "use client"
 
+import React, { useState } from "react"
 import {
+  Home,
   BarChart2,
   Receipt,
-  Building2,
-  CreditCard,
-  Folder,
   Wallet,
-  Users2,
-  Shield,
-  MessagesSquare,
-  Video,
+  Sliders,
   Settings,
   HelpCircle,
   Menu,
+  X,
+  CreditCard,
+  CalendarClock,
+  Sparkles,
 } from "lucide-react"
-
-import { Home } from "lucide-react"
-import Link from "next/link"
-import { useState } from "react"
 import Image from "next/image"
+import { useFinance } from "@/lib/context/finance-context"
 
-export default function Sidebar() {
+interface SidebarProps {
+  currentView?: string
+  onSelectView?: (view: string) => void
+}
+
+export default function Sidebar({ currentView = "dashboard", onSelectView }: SidebarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { setActiveTab, setSubView } = useFinance()
 
-  function handleNavigation() {
+  function handleNavigate(view: string) {
+    if (onSelectView) {
+      onSelectView(view)
+    }
+    if (view === "dashboard") {
+      setSubView(null)
+      setActiveTab("home")
+    } else if (view === "analytics") {
+      setSubView(null)
+      setActiveTab("analysis")
+    } else if (view === "transactions") {
+      setSubView(null)
+      setActiveTab("analysis")
+    } else if (view === "accounts") {
+      setSubView(null)
+      setActiveTab("control")
+    } else if (view === "budgets") {
+      setSubView(null)
+      setActiveTab("control")
+    } else if (view === "planned") {
+      setSubView("planned_payments")
+    } else if (view === "settings") {
+      setSubView(null)
+      setActiveTab("control")
+    }
     setIsMobileMenuOpen(false)
   }
 
-  function NavItem({
-    href,
+  function NavButton({
+    viewKey,
     icon: Icon,
     children,
   }: {
-    href: string
+    viewKey: string
     icon: any
     children: React.ReactNode
   }) {
+    const isActive = currentView === viewKey
     return (
-      <Link
-        href={href}
-        onClick={handleNavigation}
-        className="flex items-center px-3 py-2 text-sm rounded-md transition-colors text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1F1F23]"
+      <button
+        type="button"
+        onClick={() => handleNavigate(viewKey)}
+        className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors text-left ${
+          isActive
+            ? "bg-gray-100 dark:bg-[#1F1F23] text-gray-900 dark:text-white font-medium"
+            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1F1F23]/60"
+        }`}
       >
-        <Icon className="h-4 w-4 mr-3 flex-shrink-0" />
-        {children}
-      </Link>
+        <Icon className={`h-4 w-4 mr-3 flex-shrink-0 ${isActive ? "text-gray-900 dark:text-white" : "text-gray-500"}`} />
+        <span>{children}</span>
+      </button>
     )
   }
 
   return (
     <>
+      {/* Mobile Toggle Button */}
       <button
         type="button"
-        className="lg:hidden fixed top-4 left-4 z-[70] p-2 rounded-lg bg-white dark:bg-[#0F0F12] shadow-md"
+        className="lg:hidden fixed top-3 left-3 z-[70] p-2 rounded-lg bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23] shadow-md"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        aria-label="Toggle Navigation Menu"
       >
-        <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+        {isMobileMenuOpen ? (
+          <X className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+        ) : (
+          <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+        )}
       </button>
+
+      {/* Sidebar navigation container */}
       <nav
         className={`
-                fixed inset-y-0 left-0 z-[70] w-64 bg-white dark:bg-[#0F0F12] transform transition-transform duration-200 ease-in-out
-                lg:translate-x-0 lg:static lg:w-64 border-r border-gray-200 dark:border-[#1F1F23]
-                ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
-            `}
+          fixed inset-y-0 left-0 z-[70] w-64 bg-white dark:bg-[#0F0F12] transform transition-transform duration-200 ease-in-out
+          lg:translate-x-0 lg:static lg:w-64 border-r border-gray-200 dark:border-[#1F1F23] flex-shrink-0
+          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
       >
-        <div className="h-full flex flex-col">
-          <Link
-            href="https://kokonutui.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="h-16 px-6 flex items-center border-b border-gray-200 dark:border-[#1F1F23]"
-          >
-            <div className="flex items-center gap-3">
-              <Image
-                src="https://kokonutui.com/logo.svg"
-                alt="Acme"
-                width={32}
-                height={32}
-                className="flex-shrink-0 hidden dark:block"
-              />
-              <Image
-                src="https://kokonutui.com/logo-black.svg"
-                alt="Acme"
-                width={32}
-                height={32}
-                className="flex-shrink-0 block dark:hidden"
-              />
-              <span className="text-lg font-semibold hover:cursor-pointer text-gray-900 dark:text-white">
-                KokonutUI
-              </span>
+        <div className="h-full flex flex-col justify-between">
+          <div>
+            {/* Top Brand Header */}
+            <div className="h-16 px-6 flex items-center border-b border-gray-200 dark:border-[#1F1F23]">
+              <div
+                onClick={() => handleNavigate("dashboard")}
+                className="flex items-center gap-3 cursor-pointer"
+              >
+                <Image
+                  src="https://kokonutui.com/logo.svg"
+                  alt="KokonutUI Logo"
+                  width={28}
+                  height={28}
+                  className="flex-shrink-0 hidden dark:block"
+                />
+                <Image
+                  src="https://kokonutui.com/logo-black.svg"
+                  alt="KokonutUI Logo"
+                  width={28}
+                  height={28}
+                  className="flex-shrink-0 block dark:hidden"
+                />
+                <span className="text-base font-semibold text-gray-900 dark:text-white tracking-tight">
+                  KokonutUI
+                </span>
+              </div>
             </div>
-          </Link>
 
-          <div className="flex-1 overflow-y-auto py-4 px-4">
-            <div className="space-y-6">
+            {/* Menu Sections */}
+            <div className="py-4 px-3 space-y-6 overflow-y-auto">
+              {/* SECTION 1: OVERVIEW */}
               <div>
                 <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Overview
                 </div>
                 <div className="space-y-1">
-                  <NavItem href="#" icon={Home}>
+                  <NavButton viewKey="dashboard" icon={Home}>
                     Dashboard
-                  </NavItem>
-                  <NavItem href="#" icon={BarChart2}>
+                  </NavButton>
+                  <NavButton viewKey="analytics" icon={BarChart2}>
                     Analytics
-                  </NavItem>
-                  <NavItem href="#" icon={Building2}>
-                    Organization
-                  </NavItem>
-                  <NavItem href="#" icon={Folder}>
-                    Projects
-                  </NavItem>
+                  </NavButton>
                 </div>
               </div>
 
+              {/* SECTION 2: FINANCE */}
               <div>
                 <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Finance
                 </div>
                 <div className="space-y-1">
-                  <NavItem href="#" icon={Wallet}>
+                  <NavButton viewKey="transactions" icon={Receipt}>
                     Transactions
-                  </NavItem>
-                  <NavItem href="#" icon={Receipt}>
-                    Invoices
-                  </NavItem>
-                  <NavItem href="#" icon={CreditCard}>
-                    Payments
-                  </NavItem>
+                  </NavButton>
+                  <NavButton viewKey="accounts" icon={Wallet}>
+                    Accounts
+                  </NavButton>
+                  <NavButton viewKey="budgets" icon={Sliders}>
+                    Budgets
+                  </NavButton>
                 </div>
               </div>
 
+              {/* SECTION 3: SETTINGS */}
               <div>
                 <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Team
+                  Settings
                 </div>
                 <div className="space-y-1">
-                  <NavItem href="#" icon={Users2}>
-                    Members
-                  </NavItem>
-                  <NavItem href="#" icon={Shield}>
-                    Permissions
-                  </NavItem>
-                  <NavItem href="#" icon={MessagesSquare}>
-                    Chat
-                  </NavItem>
-                  <NavItem href="#" icon={Video}>
-                    Meetings
-                  </NavItem>
+                  <NavButton viewKey="settings" icon={Settings}>
+                    Preferences
+                  </NavButton>
+                  <NavButton viewKey="planned" icon={CalendarClock}>
+                    Planned Bills
+                  </NavButton>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="px-4 py-4 border-t border-gray-200 dark:border-[#1F1F23]">
-            <div className="space-y-1">
-              <NavItem href="#" icon={Settings}>
-                Settings
-              </NavItem>
-              <NavItem href="#" icon={HelpCircle}>
-                Help
-              </NavItem>
-            </div>
+          {/* Footer help link */}
+          <div className="p-4 border-t border-gray-200 dark:border-[#1F1F23]">
+            <a
+              href="https://kokonutui.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center px-3 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md transition-colors"
+            >
+              <HelpCircle className="h-4 w-4 mr-3 flex-shrink-0" />
+              <span>Documentation & Help</span>
+            </a>
           </div>
         </div>
       </nav>
 
+      {/* Mobile Backdrop Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[65] lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[65] lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
     </>
   )
 }
-
