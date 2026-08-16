@@ -1,10 +1,10 @@
-import OnboardingWizard from "@/components/onboarding/onboarding-wizard"
+import AuthView from "@/components/auth/auth-view"
 
 export const metadata = {
-  title: "User Onboarding & Account Setup — Spendly OS",
-  description: "Initialize your financial profile, multi-currency wallets, and cashflow pacing rules.",
+  title: "Welcome & Account Setup — Spendly OS",
+  description: "Create your profile, initialize your financial wallets, and launch your encrypted personal dashboard.",
 }
 
 export default function OnboardingPage() {
-  return <OnboardingWizard />
+  return <AuthView />
 }

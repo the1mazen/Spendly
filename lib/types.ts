@@ -10,6 +10,38 @@ export interface CurrencyConfig {
 
 export type TransactionType = "expense" | "income" | "transfer"
 
+export interface AuthUser {
+  id: string
+  username: string
+  email: string
+  fullName: string
+  avatar: string
+  baseCurrency: CurrencyCode
+  passwordHash: string
+  createdAt: string
+}
+
+export interface UserSession {
+  userId: string
+  username: string
+  email: string
+  token: string
+  loginAt: string
+}
+
+export interface UserFinancialData {
+  accounts: Account[]
+  transactions: Transaction[]
+  custodialEntries: CustodialEntry[]
+  plannedPayments: PlannedPayment[]
+  shortcuts: ShortcutPreset[]
+  weeklyBudget: WeeklyBudgetSettings
+  categoryCaps: CategoryCap[]
+  savingsTargets: SavingsTarget[]
+  baseCurrency: CurrencyCode
+  activeAccountId?: string
+}
+
 export interface UserProfile {
   fullName: string
   username: string

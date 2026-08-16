@@ -3,10 +3,10 @@
 import React from "react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
-import { Bell, ChevronRight, Plus, ArrowRightLeft, UserCheck } from "lucide-react"
-import Profile01 from "./profile-01"
+import { Bell, ChevronRight, Plus, ArrowRightLeft, UserCheck, LogOut } from "lucide-react"
 import { ThemeToggle } from "../theme-toggle"
 import { useFinance } from "@/lib/context/finance-context"
+import { useAuth } from "@/lib/auth/auth-context"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
@@ -16,7 +16,8 @@ interface TopNavProps {
 
 export default function TopNav({ currentView = "dashboard" }: TopNavProps) {
   const router = useRouter()
-  const { openModal, userProfile } = useFinance()
+  const { openModal } = useFinance()
+  const { user, logout } = useAuth()
 
   const viewTitles: Record<string, string> = {
     dashboard: "Dashboard",
@@ -79,7 +80,7 @@ export default function TopNav({ currentView = "dashboard" }: TopNavProps) {
           <DropdownMenuTrigger className="focus:outline-none">
             <div className="relative">
               <Image
-                src={userProfile?.avatar || "https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"}
+                src={user?.avatar || "https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"}
                 alt="User avatar"
                 width={28}
                 height={28}
@@ -94,17 +95,10 @@ export default function TopNav({ currentView = "dashboard" }: TopNavProps) {
             className="w-[280px] bg-white dark:bg-[#0F0F12] border-gray-200 dark:border-[#1F1F23] rounded-xl shadow-lg p-2 text-zinc-200"
           >
             <DropdownMenuLabel className="px-2 py-1.5">
-              <p className="text-xs font-semibold text-gray-900 dark:text-white">{userProfile?.fullName || "User Profile"}</p>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">@{userProfile?.username || "user"} • {userProfile?.email || "user@spendly.os"}</p>
+              <p className="text-xs font-semibold text-gray-900 dark:text-white">{user?.fullName || "User Profile"}</p>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">@{user?.username || "user"} • {user?.email || "user@spendly.os"}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-gray-100 dark:bg-zinc-800" />
-            <DropdownMenuItem
-              onClick={() => router.push("/onboarding")}
-              className="text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-700 dark:text-gray-200 rounded-md"
-            >
-              <UserCheck className="w-3.5 h-3.5 mr-2 text-emerald-500" />
-              Onboarding Setup Wizard
-            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => openModal("account_modal")}
               className="text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-700 dark:text-gray-200 rounded-md"
@@ -119,10 +113,11 @@ export default function TopNav({ currentView = "dashboard" }: TopNavProps) {
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-gray-100 dark:bg-zinc-800" />
             <DropdownMenuItem
-              onClick={() => toast.info("Signed out session")}
-              className="text-xs text-rose-500 cursor-pointer hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-md"
+              onClick={logout}
+              className="text-xs text-rose-500 cursor-pointer hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-md flex items-center gap-2"
             >
-              Log Out
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

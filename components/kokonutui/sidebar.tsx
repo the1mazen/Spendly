@@ -13,10 +13,11 @@ import {
   X,
   CreditCard,
   CalendarClock,
-  Sparkles,
+  LogOut,
 } from "lucide-react"
 import Image from "next/image"
 import { useFinance } from "@/lib/context/finance-context"
+import { useAuth } from "@/lib/auth/auth-context"
 
 interface SidebarProps {
   currentView?: string
@@ -26,6 +27,7 @@ interface SidebarProps {
 export default function Sidebar({ currentView = "dashboard", onSelectView }: SidebarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { setActiveTab, setSubView } = useFinance()
+  const { logout, user } = useAuth()
 
   function handleNavigate(view: string) {
     if (onSelectView) {
@@ -185,17 +187,34 @@ export default function Sidebar({ currentView = "dashboard", onSelectView }: Sid
             </div>
           </div>
 
-          {/* Footer help link */}
-          <div className="p-4 border-t border-gray-200 dark:border-[#1F1F23]">
-            <a
-              href="https://kokonutui.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center px-3 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md transition-colors"
+          {/* Footer User Profile & Sign Out */}
+          <div className="p-3 border-t border-gray-200 dark:border-[#1F1F23] space-y-2">
+            <div className="flex items-center gap-2.5 px-2 py-1.5">
+              <Image
+                src={user?.avatar || "https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"}
+                alt="User avatar"
+                width={28}
+                height={28}
+                className="rounded-full object-cover"
+              />
+              <div className="min-w-0 flex-1 truncate">
+                <p className="text-xs font-semibold text-gray-900 dark:text-white truncate">
+                  {user?.fullName || "Spendly User"}
+                </p>
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
+                  @{user?.username || "user"}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={logout}
+              className="w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-md transition-colors font-medium"
             >
-              <HelpCircle className="h-4 w-4 mr-3 flex-shrink-0" />
-              <span>Documentation & Help</span>
-            </a>
+              <LogOut className="h-3.5 w-3.5" />
+              <span>Sign Out</span>
+            </button>
           </div>
         </div>
       </nav>
