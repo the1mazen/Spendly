@@ -1,6 +1,5 @@
-import Dashboard from "@/components/kokonutui/dashboard"
+import LedgerMain from "@/components/ledger-os/ledger-main"
 
 export default function DashboardPage() {
-  return <Dashboard />
+  return <LedgerMain />
 }
-
