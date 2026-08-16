@@ -10,6 +10,17 @@ export interface CurrencyConfig {
 
 export type TransactionType = "expense" | "income" | "transfer"
 
+export interface UserProfile {
+  fullName: string
+  username: string
+  email: string
+  avatar: string
+  monthlyIncome: number
+  baseCurrency: CurrencyCode
+  instaPayAutoCalcDefault: boolean
+  isConfigured: boolean
+}
+
 export interface Transaction {
   id: string
   title: string

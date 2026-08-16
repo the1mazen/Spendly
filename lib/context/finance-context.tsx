@@ -12,9 +12,21 @@ import {
   ShortcutPreset,
   SubView,
   Transaction,
+  UserProfile,
   WeeklyBudgetSettings,
 } from "../types"
 import { convertCurrency } from "../currencies"
+
+const DEFAULT_USER_PROFILE: UserProfile = {
+  fullName: "Mazen Al-Ghamdi",
+  username: "mazen",
+  email: "mazen@spendly.os",
+  avatar: "https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png",
+  monthlyIncome: 65000,
+  baseCurrency: "EGP",
+  instaPayAutoCalcDefault: true,
+  isConfigured: true,
+}
 
 const INITIAL_ACCOUNTS: Account[] = [
   {
@@ -433,6 +445,16 @@ interface FinanceContextType {
   subView: SubView
   setSubView: (view: SubView) => void
 
+  // User Profile & Identity
+  userProfile: UserProfile
+  updateUserProfile: (profile: Partial<UserProfile>) => void
+  completeOnboarding: (data: {
+    profile: UserProfile
+    accounts: Account[]
+    budget: WeeklyBudgetSettings
+    baseCurrency: CurrencyCode
+  }) => void
+
   // Currencies & Base Preference
   baseCurrency: CurrencyCode
   setBaseCurrency: (c: CurrencyCode) => void
@@ -526,6 +548,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
   const [baseCurrency, setBaseCurrency] = useState<CurrencyCode>("EGP")
   const [activeAccountId, setActiveAccountId] = useState<string>("acc_1")
 
+  // User Profile
+  const [userProfile, setUserProfile] = useState<UserProfile>(DEFAULT_USER_PROFILE)
+
   // Core Data States
   const [accounts, setAccounts] = useState<Account[]>(INITIAL_ACCOUNTS)
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS)
@@ -543,6 +568,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
   // LocalStorage persistence
   useEffect(() => {
     try {
+      const savedProfile = localStorage.getItem("spendly_user_profile")
+      if (savedProfile) setUserProfile(JSON.parse(savedProfile))
+
       const savedAccounts = localStorage.getItem("spendly_accounts")
       if (savedAccounts) setAccounts(JSON.parse(savedAccounts))
 
@@ -577,6 +605,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
   // Auto save to LocalStorage
   useEffect(() => {
     try {
+      localStorage.setItem("spendly_user_profile", JSON.stringify(userProfile))
       localStorage.setItem("spendly_accounts", JSON.stringify(accounts))
       localStorage.setItem("spendly_transactions", JSON.stringify(transactions))
       localStorage.setItem("spendly_custodial", JSON.stringify(custodialEntries))
@@ -590,6 +619,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
       console.warn("Could not save to localStorage:", e)
     }
   }, [
+    userProfile,
     accounts,
     transactions,
     custodialEntries,
@@ -604,6 +634,40 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
   const activeAccount = useMemo(() => {
     return accounts.find((a) => a.id === activeAccountId) || accounts[0]
   }, [accounts, activeAccountId])
+
+  const updateUserProfile = (profile: Partial<UserProfile>) => {
+    setUserProfile((prev) => ({ ...prev, ...profile }))
+  }
+
+  const completeOnboarding = ({
+    profile,
+    accounts: newAccounts,
+    budget,
+    baseCurrency: newBase,
+  }: {
+    profile: UserProfile
+    accounts: Account[]
+    budget: WeeklyBudgetSettings
+    baseCurrency: CurrencyCode
+  }) => {
+    setUserProfile({ ...profile, isConfigured: true })
+    setAccounts(newAccounts)
+    if (newAccounts.length > 0) {
+      const defaultAcc = newAccounts.find((a) => a.isDefault) || newAccounts[0]
+      setActiveAccountId(defaultAcc.id)
+    }
+    setWeeklyBudget(budget)
+    setBaseCurrency(newBase)
+
+    try {
+      localStorage.setItem("spendly_user_profile", JSON.stringify({ ...profile, isConfigured: true }))
+      localStorage.setItem("spendly_accounts", JSON.stringify(newAccounts))
+      localStorage.setItem("spendly_budget", JSON.stringify(budget))
+      localStorage.setItem("spendly_base_curr", newBase)
+    } catch (e) {
+      console.warn(e)
+    }
+  }
 
   // Dynamic balance calculation
   const getAccountBalance = (accountId: string): number => {
@@ -1007,6 +1071,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
   }
 
   const resetToDemoData = () => {
+    setUserProfile(DEFAULT_USER_PROFILE)
     setAccounts(INITIAL_ACCOUNTS)
     setTransactions(INITIAL_TRANSACTIONS)
     setCustodialEntries(INITIAL_CUSTODIAL)
@@ -1031,6 +1096,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         setActiveTab,
         subView,
         setSubView,
+        userProfile,
+        updateUserProfile,
+        completeOnboarding,
         baseCurrency,
         setBaseCurrency,
         accounts,

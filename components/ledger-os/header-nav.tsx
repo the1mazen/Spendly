@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { useRouter } from "next/navigation"
 import { useFinance } from "@/lib/context/finance-context"
 import { ALL_CURRENCIES, CURRENCY_CONFIGS, convertCurrency } from "@/lib/currencies"
 import { ActiveTab, CurrencyCode } from "@/lib/types"
@@ -18,6 +19,7 @@ import {
   ChevronDown,
   Bell,
   Coins,
+  UserCheck,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -32,6 +34,7 @@ import Image from "next/image"
 import { toast } from "sonner"
 
 export default function HeaderNav() {
+  const router = useRouter()
   const {
     activeTab,
     setActiveTab,
@@ -42,7 +45,7 @@ export default function HeaderNav() {
     openModal,
     resetToDemoData,
     plannedPayments,
-    transactions,
+    userProfile,
   } = useFinance()
 
   const pendingBillsCount = plannedPayments.filter((p) => !p.isPaid).length
@@ -278,21 +281,28 @@ export default function HeaderNav() {
             <DropdownMenuTrigger className="focus:outline-none">
               <div className="relative">
                 <Image
-                  src="https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"
-                  alt="User avatar"
+                  src={userProfile?.avatar || "https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"}
+                  alt={userProfile?.fullName || "User avatar"}
                   width={30}
                   height={30}
-                  className="rounded-full ring-2 ring-zinc-700/80 hover:ring-emerald-500/80 cursor-pointer transition-all"
+                  className="rounded-full ring-2 ring-zinc-700/80 hover:ring-emerald-500/80 cursor-pointer transition-all object-cover"
                 />
                 <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-zinc-950" />
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-zinc-950 border-zinc-800 text-zinc-200">
+            <DropdownMenuContent align="end" className="w-60 bg-zinc-950 border-zinc-800 text-zinc-200">
               <DropdownMenuLabel>
-                <p className="text-xs font-semibold text-white">Mazen Al-Ghamdi</p>
-                <p className="text-[11px] text-zinc-400">mazen@spendly.os</p>
+                <p className="text-xs font-semibold text-white">{userProfile?.fullName || "Mazen Al-Ghamdi"}</p>
+                <p className="text-[11px] text-zinc-400">@{userProfile?.username || "mazen"} • {userProfile?.email || "mazen@spendly.os"}</p>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-zinc-800" />
+              <DropdownMenuItem
+                onClick={() => router.push("/onboarding")}
+                className="text-xs cursor-pointer hover:bg-zinc-900 text-emerald-400 font-semibold"
+              >
+                <UserCheck className="w-3.5 h-3.5 mr-2 text-emerald-400" />
+                Account Setup / Onboarding
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => openModal("account_modal")}
                 className="text-xs cursor-pointer hover:bg-zinc-900"
